@@ -1,4 +1,5 @@
 import mongoose, { Mongoose } from "mongoose";
+import { Password } from "../services/password";
 
 //For attributes of object to be used for user document creation
 interface usersAttrs {
@@ -27,6 +28,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+});
+
+userSchema.pre("save", async function name(done) {
+  if (this.isModified("password")) {
+    const hashed = Password.toHash(this.get("password"));
+
+    this.set("password", hashed);
+  }
 });
 
 userSchema.statics.build = (attrs: usersAttrs) => new User(attrs);
